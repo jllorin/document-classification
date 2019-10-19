@@ -1,0 +1,139 @@
+﻿<style>
+md-toast.md-top {
+    top:50px;
+}
+</style>
+
+<div ng-controller="setupCtrl" layout="column" ng-cloak class="md-inline-form">
+    <md-card>
+        <md-toolbar class="md-toolbar-tools">
+            <div>
+                <h2>
+                    <span>Additional Schema Fields</span>
+                </h2>
+            </div>
+            <span flex></span>
+            <div>
+                <md-switch ng-model="global.editMode" aria-label="Update Items">
+                    Mode: {{ global.editMode == false ? 'View' : 'Add' }}
+                </md-switch>
+            </div>
+        </md-toolbar>
+        <md-content style="padding: 20px 0 40px 0">
+            <div>
+                <form name="schemaFieldsForm">
+                    <div layout="row" style="height:80px">
+                        <md-input-container flex="60" ng-show="global.editMode">
+                            <label>New Schema Field Name</label>
+                            <input ng-model="global.selectedItem.Name" />
+                        </md-input-container>
+                        <md-autocomplete flex="60" ng-show="!global.editMode"
+                                         md-input-name="autocompleteFieldSchema"
+                                         md-min-length="0"
+                                         md-input-maxlength="50"
+                                         md-no-cache="global.noCache"
+                                         md-selected-item="global.selectedItem"
+                                         md-search-text="global.searchText"
+                                         md-items="item in querySearch(global.searchText)"
+                                         md-item-text="item.Name"
+                                         md-floating-label="Type in the schema field name you are looking for">
+                            <md-item-template>
+                                <span md-highlight-text="global.searchText">{{item.Name}}</span>
+                            </md-item-template>
+                        </md-autocomplete>
+                        <div flex="1"></div>
+                        <md-input-container flex="10" ng-show="global.editMode">
+                            <label>Type</label>
+                            <md-select ng-model="global.selectedItem.Type">
+                                <md-option ng-repeat="schemaType in schemaTypes" value="{{schemaType.value}}">
+                                    {{schemaType.text}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                        <md-input-container flex="10" ng-show="!global.editMode">
+                            <label>Type</label>
+                            <input ng-model="global.selectedItem.Type" readonly />
+                        </md-input-container>
+                        <div flex="1"></div>
+                        <md-input-container flex="8" ng-show="global.editMode">
+                            <label>Indexed</label>
+                            <md-select ng-model="global.selectedItem.Indexed">
+                                <md-option value="Yes">
+                                    Yes
+                                </md-option>
+                                <md-option value="No">
+                                    No
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                        <md-input-container flex="8" ng-show="!global.editMode">
+                            <label>Indexed</label>
+                            <input ng-model="global.selectedItem.Indexed" readonly />
+                        </md-input-container>
+                        <div flex="1"></div>
+                        <md-input-container flex="8" ng-show="global.editMode">
+                            <label>Stored</label>
+                            <md-select ng-model="global.selectedItem.Stored">
+                                <md-option value="Yes">
+                                    Yes
+                                </md-option>
+                                <md-option value="No">
+                                    No
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                        <md-input-container flex="8" ng-show="!global.editMode">
+                            <label>Stored</label>
+                            <input ng-model="global.selectedItem.Stored" readonly />
+                        </md-input-container>
+                        <div flex="1"></div>
+                        <md-input-container flex="10" ng-show="global.editMode">
+                            <label>Default Value</label>
+                            <input ng-model="global.selectedItem.DefaultValue" ng-readonly="!global.editMode" />
+                        </md-input-container>
+                    </div>
+                    <div layout="row">
+                        <md-button class="md-raised" ng-show="global.editMode" ng-click="Save()">
+                            Save
+                        </md-button>
+                        <md-button class="md-raised" ng-show="!global.editMode && global.selectedItem != null" ng-click="Delete()">
+                            Delete
+                        </md-button>
+                    </div>
+                </form>
+            </div>
+        </md-content>
+    </md-card>
+    <md-card>
+        <md-toolbar class="md-theme-light">
+            <h2 class="md-toolbar-tools">
+                <span>Input Files</span>
+            </h2>
+        </md-toolbar>
+        <md-content style="padding: 20px 0 40px 0">
+            <div>
+                <form name="inputFileForm">
+                    <div layout="row" style="height:80px">
+                        <md-input-container class="md-block" flex="90">
+                            <label>Directory</label>
+                            <input ng-model="global.Directory" />
+                        </md-input-container>
+                        <md-input-container>
+                            <label>Search Pattern</label>
+                            <input ng-model="global.SearchPattern" />
+                        </md-input-container>
+                    </div>
+                    <div layout="row">
+                        <md-button class="md-raised" ng-click="IngestFiles()">
+                            Ingest Files
+                        </md-button>
+                        <md-button class="md-raised" ng-click="DeleteFiles()">
+                            Delete Files
+                        </md-button>
+                    </div>
+                </form>
+            </div>
+        </md-content>
+    </md-card>
+</div>
+

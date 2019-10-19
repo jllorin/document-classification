@@ -1,0 +1,317 @@
+﻿<style>
+    .fileIcons {
+        width: 48px;
+        height: 48px;
+    }
+
+    .gridListFiles md-grid-tile {
+        transition: all 400ms ease-out 50ms;
+    }
+
+    .gridListFiles .fileColor {
+        background: #80D8FF;
+    }
+
+    .gridListFiles .tileStyle {
+        font-size: x-small;
+        text-align: left;
+    }
+
+    .gridListFiles md-icon {
+        height: 95%;
+    }
+
+        .gridListFiles md-icon svg {
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+        }
+
+    .gridListFiles .s64 {
+        font-size: 64px;
+    }
+
+    .gridListFiles .s32 {
+        font-size: 48px;
+    }
+
+    .gridListFiles md-icon.fa {
+        display: block;
+        padding-left: 0;
+    }
+
+    .gridListFiles md-icon.s32 span {
+        padding-left: 8px;
+    }
+
+    .gridListFiles md-grid-list {
+        margin: 8px;
+    }
+
+    .gridListFiles md-grid-tile md-icon {
+        padding-bottom: 67px;
+    }
+
+    .gridListFiles md-grid-tile md-grid-tile-footer {
+        background: rgba(0, 0, 0, 0.68);
+        height: 70px;
+    }
+
+    md-autocomplete[md-floating-label] md-input-container {
+        padding-bottom: 0;
+    }
+
+    md-toast.md-top {
+        top: 50px;
+    }
+</style>
+<div ng-controller="ruleCtrl" ng-cloak class="inputErrorsAdvanced">
+    <form name="ruleForm">
+        <div layout="row">
+            <div flex="45">
+                <md-autocomplete flex="90"
+                                 md-autoselect="true"
+                                 md-input-name="autocompleteRuleName"
+                                 md-min-length="0"
+                                 md-input-maxlength="50"
+                                 md-no-cache="global.ruleNameField.noCache"
+                                 md-selected-item="global.ruleNameField.selectedItem"
+                                 md-selected-item-change="selectedItemRuleChange(item)"
+                                 md-search-text="global.ruleNameField.searchText"
+                                 md-items="item in qrySearchRuleName(global.ruleNameField.searchText)"
+                                 md-item-text="item.RuleName"
+                                 md-floating-label="Rule Name">
+                    <md-item-template>
+                        <span md-highlight-text="global.ruleNameField.searchText">{{item.RuleName}}</span>
+                    </md-item-template>
+                </md-autocomplete>
+            </div>
+            <div flex="10">
+                <md-switch ng-model="rule.IsQueryShow" aria-label="Query">
+                    Query
+                </md-switch>
+            </div>
+            <div flex="10">
+                <md-switch ng-model="rule.IsClassifyShow" aria-label="Classify">
+                    Classify
+                </md-switch>
+            </div>
+            <div flex="10">
+                <md-switch ng-model="rule.IsSimilarityShow" aria-label="Similarity">
+                    Similarity
+                </md-switch>
+            </div>
+            <div flex="10">
+                <md-button class="md-raised md-primary" aria-label="Save" ng-click="SaveRule()">{{ rule.ID == -1 ? "Add" : "Overwrite" }}</md-button>
+            </div>
+            <div flex="10" ng-show="rule.ID != -1">
+                <md-button class="md-raised md-primary" aria-label="Delete" ng-click="DeleteRule()">Delete</md-button>
+            </div>
+        </div>
+        <md-card ng-show="rule.IsQueryShow">
+            <md-toolbar class="md-theme-light">
+                <div class="md-toolbar-tools">
+                    <h2>
+                        <span>Query</span>
+                    </h2>
+                    <span flex></span>
+                    <md-button class="md-icon-button" aria-label="Query" ng-click="Query()">
+                        <md-icon md-svg-icon="/Images/ic_query_builder_white_24px.svg" style="color: white;"></md-icon>
+                    </md-button>
+                </div>
+            </md-toolbar>
+            <br />
+            <md-content>
+                <div layout="row">
+                    <div flex="75">
+                        <md-input-container class="md-block">
+                            <label>Query string</label>
+                            <textarea ng-model="rule.QueryString" md-maxlength="1000" rows="5" md-select-on-focus></textarea>
+                            <div class="hint">Lucene search and it can be regular expression. e.g. <b>id:*Appleby*</b></div>
+                        </md-input-container>
+                    </div>
+                    <div flex>
+                    </div>
+                    <div flex="10">
+                        <md-input-container style="max-width:125px">
+                            <label>Start</label>
+                            <input ng-model="rule.Start" />
+                            <div class="hint">Skip <b>0</b></div>
+                        </md-input-container>
+                    </div>
+                    <div flex="10">
+                        <md-input-container style="max-width:125px">
+                            <label>Rows</label>
+                            <input ng-model="rule.Rows" />
+                            <div class="hint"># of rows <b>10</b></div>
+                        </md-input-container>
+                    </div>
+                </div>
+                <div layout="row">
+                    <div flex="45">
+                        <md-input-container class="md-block">
+                            <label>Sort</label>
+                            <input ng-model="rule.Sort" md-maxlength="300" />
+                            <div class="hint">No spaces after commas for multiple fields. e.g. <b>id asc,stream_name asc</b></div>
+                        </md-input-container>
+                    </div>
+                    <div flex></div>
+                    <div flex="45">
+                        <md-input-container class="md-block">
+                            <label>Fields</label>
+                            <input ng-model="rule.Fields" md-maxlength="300" />
+                            <div class="hint">No spaces after commas for multiple fields. e.g. <b>id,stream_name,content_type</b></div>
+                        </md-input-container>
+                    </div>
+                </div>
+            </md-content>
+        </md-card>
+        <md-card ng-show="rule.IsClassifyShow">
+            <md-toolbar class="md-toolbar-tools">
+                <h2>
+                    <span>Classify</span>
+                </h2>
+                <span flex></span>
+                <md-button class="md-icon-button" aria-label="Classify" ng-click="Classify()">
+                    <md-icon md-svg-icon="/Images/extract.svg" style="color: white;"></md-icon>
+                </md-button>
+            </md-toolbar>
+            <br />
+            <md-content ng-show="global.classifyShowProgress">
+                <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+                <br />
+            </md-content>
+            <md-content>
+                <div layout="row">
+                    <div flex="25">
+                        <md-autocomplete md-autoselect="true"
+                                         md-input-name="autoCompleteClassifyField"
+                                         md-min-length="0"
+                                         md-input-maxlength="50"
+                                         md-no-cache="true"
+                                         md-selected-item="global.classifyField.selectedItem"
+                                         md-selected-item-change="selectedItemClassifyChange(item)"
+                                         md-search-text="global.classifyField.searchText"
+                                         md-items="item in qrySearchClassifyField(global.classifyField.searchText)"
+                                         md-item-text="item.Name"
+                                         md-floating-label="Field Name">
+                            <md-item-template>
+                                <span md-highlight-text="global.classifyField.searchText">{{item.Name}}</span>
+                            </md-item-template>
+                        </md-autocomplete>
+                    </div>
+                    <div flex></div>
+                    <div flex="50">
+                        <md-input-container class="md-block">
+                            <label>Value</label>
+                            <input ng-model="global.classifyField.Value" md-maxlength="1000" />
+                            <div class="hint">Type in the value</div>
+                        </md-input-container>
+                    </div>
+                    <div flex="10">
+                        <md-button class="md-raised md-primary" aria-label="Add" ng-click="SaveClassifyField(rule, global.classifyField)">{{ global.classifyField.IsExisting ? "Overwrite" : "Add" }}</md-button>
+                    </div>
+                    <div flex="10" ng-show="global.classifyField.IsExisting">
+                        <md-button class="md-raised md-primary" aria-label="Delete" ng-click="DeleteField()">Delete</md-button>
+                    </div>
+                </div>
+                <div layout="row">
+                    <md-list flex="100">
+                        <md-divider></md-divider>
+                        <md-subheader><i>Fields included in the classification and their values</i></md-subheader>
+                        <md-list-item ng-repeat="item in rule.ClassifyFields">
+                            <p>{{item.SchemaName}}</p><p>{{item.Value}}</p>
+                        </md-list-item>
+                        <div layout-padding ng-show="rule.ClassifyFields.length == 0">
+                            <span style="color:red">No classify fields added</span>
+                        </div>
+                    </md-list>
+                </div>
+                <br />
+            </md-content>
+        </md-card>
+        <md-card ng-show="rule.IsSimilarityShow">
+            <md-toolbar class="md-toolbar-tools">
+                <h2>
+                    <span>Similarity</span>
+                </h2>
+                <span flex></span>
+                <md-button class="md-icon-button" aria-label="Similarity" ng-click="similarityCheck()">
+                    <md-icon md-svg-icon="/Images/ic_drag_handle_white_24px.svg" style="color: white;"></md-icon>
+                </md-button>
+            </md-toolbar>
+            <br />
+            <md-content ng-show="global.similarShowProgress">
+                <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+                <br />
+            </md-content>
+        </md-card>
+    </form>
+    <md-content>
+        <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label="JSON">
+                <pretty-json json="global.searchResult"></pretty-json>
+            </md-tab>
+            <md-tab label="File">
+                <p>
+                    The <code>id,stream_name,content_type</code> is needed to be able to view the file if <code>Fields</code> are provided.
+                </p>
+                <div class="gridListFiles">
+                    <md-grid-list md-cols="8" md-row-height="120px" md-gutter="12px">
+                        <md-grid-tile ng-repeat="file in global.selectFiles" md-rowspan="1" md-colspan="1" class="fileColor">
+                            <md-button ng-click="OpenFile(file.id, file.content_type[0]);">
+                                <md-icon md-svg-src="{{'/Images/' + file.content_type[0].replace('/', '.') + '.svg'}}" class="fileIcons" aria-label="{{file.stream_name[0]}}"></md-icon>
+                            </md-button>
+                            <md-grid-tile-footer ng-style="rule.IsSimilarityShow && file.similarityStyle == null ? {'cursor': 'pointer'} : (!rule.IsSimilarityShow && file.similarityStyle == null ? {'cursor': 'default'} : file.similarityStyle)"
+                                                 ng-click="changeSimilarityStyle(file);">
+                                <h6>{{file.stream_name[0]}}</h6>
+                            </md-grid-tile-footer>
+                        </md-grid-tile>
+                    </md-grid-list>
+                </div>
+            </md-tab>
+            <md-tab label="Grid">
+                <p style="margin-bottom:0">
+                    The <code>id,content_type</code> is needed to be able to view the file in the <code>Fields</code>.
+                </p>
+                <md-toolbar class="md-table-toolbar md-default">
+                    <div class="md-toolbar-tools" ng-show="!searchGrid">
+                        <span>Data Grid</span>
+                        <div flex></div>
+                        <md-button class="md-icon-button" ng-click="searchGrid = true">
+                            <md-icon md-svg-src="/Images/ic_filter_list_black_24px.svg" class="s24" aria-label="Filter"></md-icon>
+                        </md-button>
+                    </div>
+                    <div class="md-toolbar-tools" ng-show="searchGrid" ; style="margin-top:10px">
+                        <md-icon md-svg-src="/Images/ic_search_black_24px.svg" class="s24" aria-label="Search"></md-icon>&nbsp;&nbsp;
+                        <md-input-container style="margin-bottom:0">
+                            <label>Search</label>
+                            <input ng-model="query.filter" />
+                        </md-input-container>
+                        <div flex></div>
+                        <md-button class="md-icon-button" ng-click="searchGrid = false">
+                            <md-icon md-svg-src="/Images/ic_close_black_24px.svg" class="s24" aria-label="Close"></md-icon>
+                        </md-button>
+                    </div>
+                </md-toolbar>
+                <md-table-container>
+                    <table md-table md-row-select="options.rowSelection" multiple="{{options.multiSelect}}" ng-model="selected" md-progress="promise">
+                        <thead md-head md-order="options.order">
+                            <tr md-row>
+                                <th ng-repeat="headerRow in global.fieldsSplit" md-column md-order-by="{{ headerRow }}">{{ headerRow }}</th>
+                            </tr>
+                        </thead>
+                        <tbody md-body>
+                            <tr md-row md-select="file" md-auto-select="options.autoSelect" ng-repeat="file in global.selectFiles | filter: query.filter | orderBy: options.order">
+                                <td md-cell ng-repeat="key in global.fieldsSplit" ng-if="global.fieldsSplit.indexOf(key) > -1">
+                                    <span ng-if="key != 'id'">{{ file[key] }}</span>
+                                    <span ng-if="key == 'id'" ng-click="OpenFile(file.id, file.content_type[0])" style="cursor:pointer">{{ file[key] }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+            </md-tab>
+        </md-tabs>
+    </md-content>
+</div>
